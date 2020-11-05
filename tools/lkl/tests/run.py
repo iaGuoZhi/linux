@@ -67,6 +67,7 @@ tests = [
     'disk-vfio-pci.sh -t btrfs run',
     'disk-vfio-pci.sh -t vfat run',
     'disk-vfio-pci.sh -t xfs run'
+    'uartapp.sh'
 ]
 
 parser = argparse.ArgumentParser(description='LKL test runner')
