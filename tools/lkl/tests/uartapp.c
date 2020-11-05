@@ -299,9 +299,7 @@ static int wapper_cfsetospeed  (struct termios *termios_p,
   return 0;
 }
 
-
-
-static int wapper_cfsetispeed (    struct termios *termios_p,   speed_t speed)
+static int wapper_cfsetispeed (struct termios *termios_p, speed_t speed)
 {
   if ((speed & ~CBAUD) != 0
       && (speed < B57600 || speed > __MAX_BAUD))
@@ -375,7 +373,7 @@ static int  tty_open_uart(struct uart_dev *dev)
 	if (ret)
 		return ret;
 	
-	dev->uart_fd= lkl_sys_open("/dev/ttyAMA0", O_RDWR|O_NOCTTY,0);
+	dev->uart_fd = lkl_sys_open("/dev/ttyAMA0", O_RDWR|O_NOCTTY,0);
 	
 	if (dev->uart_fd<0)
 		return dev->uart_fd;
