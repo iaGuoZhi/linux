@@ -1,4 +1,5 @@
 tests/boot
+tests/uartapp
 fs2tar
 cptofs
 cpfromfs
