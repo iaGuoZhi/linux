@@ -6,23 +6,19 @@
 #include <stdint.h>
 #include <lkl.h>
 #include <lkl_host.h>
-#ifndef __MINGW32__
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <net/if.h>
 #include <linux/if_tun.h>
 #include <sys/ioctl.h>
 #include <sys/epoll.h>
-#else
-#include <windows.h>
-#endif
 #include "test.h"
 #include <sys/stat.h>
 #include <fcntl.h>
 
- #include <linux/fb.h>
- #include <sys/mman.h>
- #include <errno.h>
+#include <linux/fb.h>
+#include <sys/mman.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <termios.h>
 
@@ -211,9 +207,8 @@ static void uart_recv_thread(void *arg)
 
 
 
-typedef unsigned long uintptr_t;
+typedef unsigned long vaddr_t;
 typedef unsigned int uint32_t;
-typedef uintptr_t vaddr_t;
 
 static inline void write32(uint32_t val, vaddr_t addr)
 {
