@@ -595,7 +595,7 @@ static int lkl_test_init_uio_uart(struct uart_dev *dev){
 	int irq_count;
 	unsigned long base;
 
-	fd = open("/dev/uio0", O_RDWR | O_SYNC);
+	fd = open("/dev/tty", O_RDWR | O_SYNC);
 	if(fd < 0){
 		printf("open dev failed: %s\n", strerror(errno));
 		return TEST_FAILURE;
