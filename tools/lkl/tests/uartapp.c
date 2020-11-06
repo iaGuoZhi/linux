@@ -174,15 +174,15 @@ static  void uart_deliver_irq(struct uart_dev *dev)
 
 static void uartio_irq_thread(void *arg)
 {
-	struct uart_dev  *dev = arg;
+	struct uart_dev *dev = arg;
 	int irq_count=0;
 
-
+	printf("[uartio_irq_thread] \n");
 	do {
-		   irq_count=1;
+		irq_count=1;
                 write(dev->fd, &irq_count, 4);
                 if (read(dev->fd, &irq_count, 4) == 4) {
-				uart_deliver_irq(dev);
+			uart_deliver_irq(dev);
 		
                 }else{
                 	printf("bad irq in thread \n");
@@ -253,7 +253,6 @@ wapper_tcgetattr (fd, termios_p)
 
   retval = lkl_sys_ioctl ( fd, TCGETS, termios_p);
 
- 
   return retval;
 }
 
@@ -327,7 +326,7 @@ wapper_tcflush (  int fd,  int queue_selector)
 
 
 
-
+/*
 static int  tty_config_uart(struct uart_dev *dev)
 {
 
@@ -347,6 +346,7 @@ static int  tty_config_uart(struct uart_dev *dev)
 	return 0;
 
 }
+*/
 
 static int lkl_test_tty_config_uart(struct uart_dev *dev)
 {
@@ -367,6 +367,7 @@ static int lkl_test_tty_config_uart(struct uart_dev *dev)
 	return TEST_SUCCESS;
 }
 
+/*
 static int  tty_open_uart(struct uart_dev *dev)
 {
        int ret;
@@ -394,6 +395,7 @@ static int  tty_open_uart(struct uart_dev *dev)
 	return 0;
 
 }
+*/
 
 static int lkl_test_tty_open_uart(struct uart_dev *dev)
 {
@@ -404,7 +406,8 @@ static int lkl_test_tty_open_uart(struct uart_dev *dev)
 		if(ret == -LKL_ENOENT)
 			ret = lkl_sys_mkdir("/dev", 0700);
 		if(ret < 0)
-			return TEST_FAILURE; }
+			return TEST_FAILURE; 
+	}
 
 	ret = lkl_sys_mknod("/dev/ttyAMA0", LKL_S_IFCHR | 666, LKL_MKDEV(204, 64));
 	if(ret)
@@ -418,7 +421,7 @@ static int lkl_test_tty_open_uart(struct uart_dev *dev)
 	return TEST_SUCCESS;
 }
 
-
+/*
 static int  tty_write_uart(struct uart_dev *dev)
 {
 	int ret;
@@ -429,6 +432,7 @@ static int  tty_write_uart(struct uart_dev *dev)
 	return ret;
 
 }
+*/
 
 static int lkl_test_tty_write_uart(struct uart_dev *dev)
 {
@@ -439,6 +443,7 @@ static int lkl_test_tty_write_uart(struct uart_dev *dev)
 	return ret;
 }
 
+/*
 static int  tty_read_uart(struct uart_dev *dev)
 {
 
@@ -446,6 +451,7 @@ static int  tty_read_uart(struct uart_dev *dev)
 	return 0;
 
 }
+*/
 
 static int lkl_test_tty_read_uart(struct uart_dev *dev)
 {
@@ -505,8 +511,7 @@ static const struct lkl_iomem_ops amba_ops = {
 	.write = amba_write,
 };
 
-
-
+/*
 static int setup_dev_uart(struct uart_dev *dev){
 
 	int ret;
@@ -530,6 +535,7 @@ static int setup_dev_uart(struct uart_dev *dev){
 	return 0;
 
 }
+*/
 
 static int lkl_test_setup_dev_uart(struct uart_dev *dev)
 {
@@ -554,7 +560,7 @@ static int lkl_test_setup_dev_uart(struct uart_dev *dev)
 }
 
 
-
+/*
 static  int init_uio_uart(struct uart_dev *dev){
 
 	 int fd;
@@ -588,11 +594,9 @@ static  int init_uio_uart(struct uart_dev *dev){
      return 0;
 
 }
-
+*/
 static int lkl_test_init_uio_uart(struct uart_dev *dev){
 	int fd;
-	int ret;
-	int irq_count;
 	unsigned long base;
 
 	fd = open("/dev/tty", O_RDWR | O_SYNC);
@@ -615,6 +619,7 @@ static int lkl_test_init_uio_uart(struct uart_dev *dev){
 }
 
 
+/*
 static void test_uart_dev(struct uart_dev *dev){
 
 	init_uio_uart(dev);
@@ -631,6 +636,7 @@ static void test_uart_dev(struct uart_dev *dev){
 	return 0;
 	
 }
+*/
 
 struct lkl_test tests[] = {
 	LKL_TEST(init_uio_uart),
