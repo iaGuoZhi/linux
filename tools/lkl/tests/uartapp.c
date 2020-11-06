@@ -346,7 +346,25 @@ static int  tty_config_uart(struct uart_dev *dev)
 
 	return 0;
 
+}
 
+static int lkl_test_tty_config_uart(struct uart_dev *dev)
+{
+	struct termios t;
+	
+	wapper_tcgetattr(dev->uart_fd, &t);
+	t.c_cflag &= ~CSIZE;
+	t.c_cflag &= ~CSTOPB;
+    	t.c_cflag |= CREAD ;
+    	t.c_cflag |= CLOCAL ;
+    	t.c_cflag &= ~CRTSCTS;
+    	t.c_cflag |= CS8;
+    	wapper_cfsetispeed( &t , B115200);
+    	wapper_cfsetospeed( &t , B115200);
+    	wapper_tcflush( dev->uart_fd, TCIOFLUSH);
+    	wapper_tcsetattr( dev->uart_fd , TCSANOW ,&t);
+
+	return TEST_SUCCESS;
 }
 
 static int  tty_open_uart(struct uart_dev *dev)
@@ -377,6 +395,29 @@ static int  tty_open_uart(struct uart_dev *dev)
 
 }
 
+static int lkl_test_tty_open_uart(struct uart_dev *dev)
+{
+	int ret;
+
+	ret = lkl_sys_access("/dev", LKL_S_IRWXO);
+	if(ret < 0){
+		if(ret == -LKL_ENOENT)
+			ret = lkl_sys_mkdir("/dev", 0700);
+		if(ret < 0)
+			return TEST_FAILURE; }
+
+	ret = lkl_sys_mknod("/dev/ttyAMA0", LKL_S_IFCHR | 666, LKL_MKDEV(204, 64));
+	if(ret)
+		return TEST_FAILURE;
+
+	dev->uart_fd = lkl_sys_open("/dev/ttyAMA0", O_RDWR | O_NOCTTY, 0);
+
+	if(dev->uart_fd < 0)
+		return TEST_FAILURE;
+
+	return TEST_SUCCESS;
+}
+
 
 static int  tty_write_uart(struct uart_dev *dev)
 {
@@ -389,6 +430,14 @@ static int  tty_write_uart(struct uart_dev *dev)
 
 }
 
+static int lkl_test_tty_write_uart(struct uart_dev *dev)
+{
+	int ret;
+	char buff_send[] = "this is a tty write test\n";
+
+	ret = lkl_sys_write(dev->uart_fd, buff_send, sizeof(buff_send));
+	return ret;
+}
 
 static int  tty_read_uart(struct uart_dev *dev)
 {
@@ -398,7 +447,11 @@ static int  tty_read_uart(struct uart_dev *dev)
 
 }
 
-
+static int lkl_test_tty_read_uart(struct uart_dev *dev)
+{
+	dev->uart_recv_tid =  lkl_host_ops.thread_create(uart_recv_thread, dev);
+	return 0;
+}
 
 static int amba_read(void *data, int offset, void *res, int size)
 {
@@ -478,6 +531,31 @@ static int setup_dev_uart(struct uart_dev *dev){
 
 }
 
+static int lkl_test_setup_dev_uart(struct uart_dev *dev)
+{
+	int ret;
+
+	dev->irq = lkl_get_free_irq("uart");
+	dev->mmio_size = 0x1000;
+
+	dev->iomem_base = register_iomem(dev->base, dev->mmio_size, &static int lkl_test_tty_read_uart(struct uart_dev *dev)
+			{
+			dev->uart_recv_tid =  lkl_host_ops.thread_create(uart_recv_thread, dev);
+			return 0;
+			}amba_ops);
+	if(!dev->iomem_base){
+		return TEST_FAILURE;
+	}
+
+	ret = lkl_sys_amba_device_add((long) dev->iomem_base, dev->mmio_size,
+			dev->irq, 0x241011);
+	if(ret < 0){
+		lkl_printf("can't register uart device\n");
+		return TEST_FAILURE;
+	}
+	
+	return TEST_SUCCESS;
+}
 
 
 
@@ -515,6 +593,30 @@ static  int init_uio_uart(struct uart_dev *dev){
 
 }
 
+static int lkl_test_init_uio_uart(struct uart_dev *dev){
+	int fd;
+	int ret;
+	int irq_count;
+	unsigned long base;
+
+	fd = open("/dev/uio0", O_RDWR | O_SYNC);
+	if(fd < 0){
+		printf("open dev failed: %s\n", strerror(errno));
+		return TEST_FAILURE;
+	}
+
+	base = (unsigned char *) mmap(0, 0x1000, PORT_READ | PORT_WRITE, MAP_SHARED, fd, 0);
+	if(base == MAP_FAILED){
+		printf("mmap failed\n");
+		return TEST_SUCCESS;
+	}
+
+	dev->irq_tid = lkl_host_ops.thread_create(uartio_irq_thread, dev);
+	dev->fd = fd;
+	dev->base = (void *)base;
+
+	return TEST_SUCCESS;
+}
 
 
 static void test_uart_dev(struct uart_dev *dev){
@@ -534,8 +636,24 @@ static void test_uart_dev(struct uart_dev *dev){
 	
 }
 
+struct lkl_test tests[] = {
+	LKL_TEST(init_uio_uart),
+	LKL_TEST(setup_dev_uart),
+	LKL_TEST(tty_open_uart),
+	LKL_TEST(config_uart),
+	LKL_TEST(tty_write_uart),
+	LKL_TEST(tty_read_uart),
+}
 
+struct uart_dev *dev;
 
+int main(int argc, char **argv)
+{
+	dev = new (struct uart_dev);
+	return lkl_test_run(tests, sizeof(tests)/sizeof(struct lkl_test),"uartapp");
+}
+
+/*
 int main(int argc, char **argv)
 {
 	struct uart_dev dev;
@@ -558,3 +676,6 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+*/
+
+
