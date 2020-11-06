@@ -649,7 +649,7 @@ struct uart_dev *dev;
 
 int main(int argc, char **argv)
 {
-	dev = new (struct uart_dev);
+	dev = malloc(sizeof(struct uart_dev));
 	return lkl_test_run(tests, sizeof(tests)/sizeof(struct lkl_test),"uartapp");
 }
 
