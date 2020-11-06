@@ -449,7 +449,7 @@ static int  tty_read_uart(struct uart_dev *dev)
 
 static int lkl_test_tty_read_uart(struct uart_dev *dev)
 {
-	dev->uart_recv_tid =  lkl_host_ops.thread_create(uart_recv_thread, dev);
+	dev->uart_recv_tid = lkl_host_ops.thread_create(uart_recv_thread, dev);
 	return 0;
 }
 
@@ -538,11 +538,7 @@ static int lkl_test_setup_dev_uart(struct uart_dev *dev)
 	dev->irq = lkl_get_free_irq("uart");
 	dev->mmio_size = 0x1000;
 
-	dev->iomem_base = register_iomem(dev->base, dev->mmio_size, &static int lkl_test_tty_read_uart(struct uart_dev *dev)
-			{
-			dev->uart_recv_tid =  lkl_host_ops.thread_create(uart_recv_thread, dev);
-			return 0;
-			}amba_ops);
+	dev->iomem_base = register_iomem(dev->base, dev->mmio_size, amba_ops);
 	if(!dev->iomem_base){
 		return TEST_FAILURE;
 	}
@@ -605,7 +601,7 @@ static int lkl_test_init_uio_uart(struct uart_dev *dev){
 		return TEST_FAILURE;
 	}
 
-	base = (unsigned char *) mmap(0, 0x1000, PORT_READ | PORT_WRITE, MAP_SHARED, fd, 0);
+	base = (unsigned char *) mmap(0, 0x1000, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if(base == MAP_FAILED){
 		printf("mmap failed\n");
 		return TEST_SUCCESS;
@@ -640,7 +636,7 @@ struct lkl_test tests[] = {
 	LKL_TEST(init_uio_uart),
 	LKL_TEST(setup_dev_uart),
 	LKL_TEST(tty_open_uart),
-	LKL_TEST(config_uart),
+	LKL_TEST(tty_config_uart),
 	LKL_TEST(tty_write_uart),
 	LKL_TEST(tty_read_uart),
 };
