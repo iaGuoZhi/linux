@@ -643,7 +643,7 @@ struct lkl_test tests[] = {
 	LKL_TEST(config_uart),
 	LKL_TEST(tty_write_uart),
 	LKL_TEST(tty_read_uart),
-}
+};
 
 struct uart_dev *dev;
 
